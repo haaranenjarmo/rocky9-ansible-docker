@@ -27,8 +27,8 @@ RUN yum -y install rpm dnf-plugins-core \
       which \
       hostname \
       libyaml \
-      python3 \
-      python3-pip \
+      python3.12 \
+      python3.12-pip \
       python3-pyyaml \
       iproute \
  && yum clean all
