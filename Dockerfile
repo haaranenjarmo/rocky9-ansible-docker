@@ -1,7 +1,7 @@
 FROM rockylinux:9-minimal
 LABEL maintainer="Jarmo Haaranen"
 LABEL description="Ansible Core on Rocky Linux 9"
-LABEL version="1.0.0"
+LABEL version="1.0.1"
 
 # Upgrade and install packages
 RUN microdnf -y upgrade \
@@ -24,14 +24,14 @@ USER ansible
 
 ENV PATH="/home/ansible/.local/bin:${PATH}"
 
-# Copy requirements.txt to container
-COPY requirements.txt /tmp/requirements.txt
+# Copy both requirements.txt and collections.yml in one step
+COPY requirements.txt collections.yml /tmp/
 
-# Copy collections.yml to container
-COPY collections.yml /tmp/collections.yml
-
-# Install Python packages and ansible collections
+# Install Python packages, ansible collections and remove tmp files
 RUN pip install -r /tmp/requirements.txt \
-  && ansible-galaxy collection install -r /tmp/collections.yml
+  && ansible-galaxy collection install -r /tmp/collections.yml \
+  && sudo rm /tmp/requirements.txt /tmp/collections.yml
+
+WORKDIR /app
 
 CMD ["sleep", "infinity"]
