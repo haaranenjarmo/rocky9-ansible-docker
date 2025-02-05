@@ -38,5 +38,3 @@ RUN pip install -r /home/ansible/requirements.txt \
   && sudo chmod -R 750 /home/ansible
 
 WORKDIR /home/ansible
-
-CMD ["sleep", "infinity"]
