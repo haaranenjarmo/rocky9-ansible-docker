@@ -6,6 +6,9 @@ LABEL version="1.0.3"
 # Upgrade and install packages
 RUN microdnf -y upgrade \
      && microdnf -y install \
+     curl \
+     dnf-plugins-core \
+     ca-certificates \
      python3.12 \
      python3.12-pip \
      sudo \
@@ -34,6 +37,6 @@ RUN pip install -r /home/ansible/requirements.txt \
   && sudo chown -R ansible:ansible /home/ansible \
   && sudo chmod -R 750 /home/ansible
 
-WORKDIR /app
+WORKDIR /home/ansible
 
 CMD ["sleep", "infinity"]
