@@ -1,7 +1,7 @@
 FROM rockylinux:9-minimal
 LABEL maintainer="Jarmo Haaranen"
 LABEL description="Ansible Core on Rocky Linux 9"
-LABEL version="1.0.2"
+LABEL version="1.0.3"
 
 # Upgrade and install packages
 RUN microdnf -y upgrade \
@@ -9,7 +9,6 @@ RUN microdnf -y upgrade \
      python3.12 \
      python3.12-pip \
      sudo \
-     podman \
      && microdnf clean all
 
 # Upgrade pip
