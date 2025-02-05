@@ -9,6 +9,7 @@ RUN microdnf -y upgrade \
      python3.12 \
      python3.12-pip \
      sudo \
+     podman \
      && microdnf clean all
 
 # Upgrade pip
