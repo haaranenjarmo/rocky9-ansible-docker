@@ -16,7 +16,7 @@ RUN python3.12 -m pip install --upgrade pip
 
 # Create ansible user
 RUN groupadd -g 1001 ansible \
-    && useradd -u 1001 -g ansible -m -s /bin/bash ansible \
+    && useradd -u 1001 -g ansible -m -s /bin/bash -d /home/ansible ansible \
     && echo "ansible ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ansible
 
 
@@ -26,12 +26,11 @@ USER ansible
 ENV PATH="/home/ansible/.local/bin:${PATH}"
 
 # Copy both requirements.txt and collections.yml in one step
-COPY requirements.txt collections.yml /tmp/
+COPY requirements.txt collections.yml /home/ansible/
 
 # Install Python packages, ansible collections and remove tmp files
-RUN pip install -r /tmp/requirements.txt \
-  && ansible-galaxy collection install -r /tmp/collections.yml \
-  && sudo rm /tmp/requirements.txt /tmp/collections.yml \
+RUN pip install -r /home/ansible/requirements.txt \
+  && ansible-galaxy collection install -r /home/ansible/collections.yml \
   && sudo chown -R ansible:ansible /home/ansible \
   && sudo chmod -R 750 /home/ansible
 
