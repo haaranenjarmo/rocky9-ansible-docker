@@ -1,7 +1,7 @@
 FROM rockylinux:9-minimal
 LABEL maintainer="Jarmo Haaranen"
 LABEL description="Ansible Core on Rocky Linux 9"
-LABEL version="1.0.1"
+LABEL version="1.0.2"
 
 # Upgrade and install packages
 RUN microdnf -y upgrade \
@@ -17,7 +17,9 @@ RUN python3.12 -m pip install --upgrade pip
 # Create ansible user
 RUN groupadd -g 1001 ansible \
     && useradd -u 1001 -g ansible -m -s /bin/bash ansible \
-    && echo "ansible ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ansible
+    && echo "ansible ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ansible \
+    && chown ansible:ansible /home/ansible \
+    && chmod 750 /home/ansible
 
 # Switch user context to ansible
 USER ansible
