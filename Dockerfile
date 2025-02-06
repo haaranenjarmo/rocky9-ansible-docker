@@ -4,15 +4,6 @@ LABEL description="Ansible Core on Rocky Linux 9"
 LABEL orginal="https://github.com/geerlingguy/docker-rockylinux9-ansible/tree/master"
 LABEL version="1.0.5"
 
-# Install systemd -- See https://hub.docker.com/_/centos/
-RUN rm -f /lib/systemd/system/multi-user.target.wants/*;\
-    rm -f /etc/systemd/system/*.wants/*;\
-    rm -f /lib/systemd/system/local-fs.target.wants/*; \
-    rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-    rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-    rm -f /lib/systemd/system/basic.target.wants/*;\
-    rm -f /lib/systemd/system/anaconda.target.wants/*;
-
 RUN yum -y install rpm dnf-plugins-core \
     && yum -y update && yum -y upgrade \
     && yum -y install \
@@ -27,9 +18,14 @@ RUN yum -y install rpm dnf-plugins-core \
       python3.12-pip \
       python3.12-pyyaml \
       iproute \
-      docker-ce-cli \
       podman \
     && yum clean all
+
+RUN dnf update -y \
+    && dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+RUN dnf install -y docker-ce docker-ce-cli containerd.io \
+    && systemctl enable docker
 
 # Upgrade pip
 RUN python3.12 -m pip install --upgrade pip
