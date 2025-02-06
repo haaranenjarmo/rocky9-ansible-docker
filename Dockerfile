@@ -1,7 +1,7 @@
 FROM rockylinux:9-minimal
 LABEL maintainer="Jarmo Haaranen"
 LABEL description="Ansible Core on Rocky Linux 9"
-LABEL version="1.0.3"
+LABEL version="1.0.4"
 
 # Upgrade and install packages
 RUN microdnf -y upgrade \
@@ -33,8 +33,6 @@ COPY requirements.txt collections.yml /home/ansible/
 
 # Install Python packages, ansible collections and remove tmp files
 RUN pip install -r /home/ansible/requirements.txt \
-  && ansible-galaxy collection install -r /home/ansible/collections.yml \
-  && sudo chown -R ansible:ansible /home/ansible \
-  && sudo chmod -R 750 /home/ansible
+  && ansible-galaxy collection install -r /home/ansible/collections.yml
 
 WORKDIR /home/ansible
