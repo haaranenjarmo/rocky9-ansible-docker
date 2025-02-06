@@ -6,12 +6,12 @@ LABEL version="1.0.5"
 
 # Install systemd -- See https://hub.docker.com/_/centos/
 RUN rm -f /lib/systemd/system/multi-user.target.wants/*;\
-rm -f /etc/systemd/system/*.wants/*;\
-rm -f /lib/systemd/system/local-fs.target.wants/*; \
-rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-rm -f /lib/systemd/system/basic.target.wants/*;\
-rm -f /lib/systemd/system/anaconda.target.wants/*;
+    rm -f /etc/systemd/system/*.wants/*;\
+    rm -f /lib/systemd/system/local-fs.target.wants/*; \
+    rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+    rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+    rm -f /lib/systemd/system/basic.target.wants/*;\
+    rm -f /lib/systemd/system/anaconda.target.wants/*;
 
 RUN yum -y install rpm dnf-plugins-core \
     && yum -y update && yum -y upgrade \
@@ -27,6 +27,8 @@ RUN yum -y install rpm dnf-plugins-core \
       python3.12-pip \
       python3.12-pyyaml \
       iproute \
+      docker-ce-cli \
+      podman \
     && yum clean all
 
 # Upgrade pip
@@ -36,14 +38,17 @@ RUN python3.12 -m pip install --upgrade pip
 RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers
 
 # Install Ansible inventory file.
-RUN mkdir -p /etc/ansible
+RUN mkdir -p /etc/ansible 
 RUN echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts
+
+RUN mkdir -p /usr/local/lib/python3.12/site-packages/ansible_collections \
+    && chmod 755 /usr/local/lib/python3.12/site-packages/ansible_collections
 
 # Create ansible user
 RUN groupadd -g 1001 ansible \
     && useradd -u 1001 -g ansible -m -s /bin/bash -d /home/ansible ansible \
-    && echo "ansible ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ansible
-
+    && echo "ansible ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ansible \
+    && usermod -aG docker ansible
 
 # Switch user context to ansible
 USER ansible
