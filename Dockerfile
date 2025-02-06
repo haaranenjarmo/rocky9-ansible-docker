@@ -1,21 +1,43 @@
-FROM rockylinux:9-minimal
+FROM  rockylinux:9
 LABEL maintainer="Jarmo Haaranen"
 LABEL description="Ansible Core on Rocky Linux 9"
-LABEL version="1.0.4"
+LABEL orginal="https://github.com/geerlingguy/docker-rockylinux9-ansible/tree/master"
+LABEL version="1.0.5"
 
-# Upgrade and install packages
-RUN microdnf -y upgrade \
-     && microdnf -y install \
-     curl \
-     dnf-plugins-core \
-     ca-certificates \
-     python3.12 \
-     python3.12-pip \
-     sudo \
-     && microdnf clean all
+# Install systemd -- See https://hub.docker.com/_/centos/
+RUN rm -f /lib/systemd/system/multi-user.target.wants/*;\
+rm -f /etc/systemd/system/*.wants/*;\
+rm -f /lib/systemd/system/local-fs.target.wants/*; \
+rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+rm -f /lib/systemd/system/basic.target.wants/*;\
+rm -f /lib/systemd/system/anaconda.target.wants/*;
+
+RUN yum -y install rpm dnf-plugins-core \
+    && yum -y update && yum -y upgrade \
+    && yum -y install \
+      epel-release \
+      initscripts \
+      sudo \
+      which \
+      hostname \
+      libyaml \
+      ca-certificates \
+      python3.12 \
+      python3.12-pip \
+      python3.12-pyyaml \
+      iproute \
+    && yum clean all
 
 # Upgrade pip
 RUN python3.12 -m pip install --upgrade pip
+
+# Disable requiretty.
+RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers
+
+# Install Ansible inventory file.
+RUN mkdir -p /etc/ansible
+RUN echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts
 
 # Create ansible user
 RUN groupadd -g 1001 ansible \
@@ -35,4 +57,5 @@ COPY requirements.txt collections.yml /home/ansible/
 RUN pip install -r /home/ansible/requirements.txt \
   && ansible-galaxy collection install -r /home/ansible/collections.yml
 
-WORKDIR /home/ansible
+VOLUME ["/sys/fs/cgroup"]
+CMD ["/usr/lib/systemd/systemd"]
